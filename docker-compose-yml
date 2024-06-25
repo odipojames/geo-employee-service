@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  ordersapi:
+    container_name: geo-employee-api
+    build: .
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+
+    volumes:
+      - .:/app
