@@ -7,7 +7,7 @@ from django.db.models import Q
 
 
 class AdvanceListCreateView(generics.ListCreateAPIView):
-    queryset = Advance.objects.all()
+    queryset = Advance.objects.all().order_by('-created_at')
     serializer_class = AdvanceSerializer
     permission_classes = [IsAuthenticated]
 
@@ -15,7 +15,7 @@ class AdvanceListCreateView(generics.ListCreateAPIView):
         employee = Employee.objects.get(email=self.request.user.email)
         
         if str(self.request.user.role) in ["management", "admin", "tech_lead"]:
-            return Advance.objects.filter(Q(employee=employee) | Q(is_approved=False))
+            return Advance.objects.filter(Q(employee=employee) | Q(is_approved=False)).order_by('-created_at')
         
         return Advance.objects.filter(employee=employee)
 
@@ -51,7 +51,7 @@ class AdvanceDetailView(generics.RetrieveUpdateDestroyAPIView):
         if user.role in ['management', 'admin', 'tech_lead']:
             if instance.employee.email == user.email:
                 if 'is_approved' in request.data or 'is_rejected' in request.data:
-                    return Response({"detail": "You cannot approve or reject  your own advances. request!"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"detail": "You cannot approve or reject  your own advance request!"}, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)

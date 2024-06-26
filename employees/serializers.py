@@ -24,7 +24,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
         model = Employee
         fields = [
             'id', 'first_name', 'second_name', 'last_name', 'email',
-            'phone', 'id_number', 'department','teams', 'age', 'county',
+            'phone', 'id_number', 'department','team', 'age', 'county',
             'sub_county', 'salary', 'created_at', 'updated_at',
             'documents', 'equipments'
         ]
@@ -57,6 +57,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
         instance.county = validated_data.get('county', instance.county)
         instance.sub_county = validated_data.get('sub_county', instance.sub_county)
         instance.salary = validated_data.get('salary', instance.salary)
+        instance.department = validated_data.get('department', instance.department)
+        instance.team = validated_data.get('team', instance.team)
 
         documents_instance = instance.documents
         documents_instance.national_id = documents_data.get('national_id', documents_instance.national_id)

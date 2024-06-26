@@ -17,7 +17,7 @@ class EmployeeListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         if str(self.request.user.role)=="staff":
             return Employee.objects.filter(email=self.request.user.email)
-        return Employee.objects.all()
+        return Employee.objects.all().order_by('-created_at')
 
     
 

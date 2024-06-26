@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'employees',
     'advances',
     'utils',
+    'rewards',
     'rest_framework_swagger',
     'drf_yasg',
 ]

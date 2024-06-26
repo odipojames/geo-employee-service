@@ -7,7 +7,7 @@ class EmployeeMSerializer(serializers.ModelSerializer):
         model = Employee
         fields = [
             'id', 'first_name', 'second_name', 'last_name', 'email',
-            'phone', 'id_number', 'department', 'age', 'county',
+            'phone', 'id_number', 'department', 'team','age', 'county',
             'sub_county', 'salary'
         ]
 

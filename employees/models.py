@@ -44,7 +44,7 @@ class Employee(AbstractBaseModel, models.Model):
     phone = models.CharField(max_length=100)
     id_number = models.CharField(max_length=100)
     department = models.CharField(max_length=100, blank=True,choices=DEPARTMENT_CHOICES)
-    teams = models.CharField(max_length=100, blank=True)
+    team = models.CharField(max_length=100, blank=True)
     age = models.PositiveIntegerField()
     county = models.CharField(max_length=100)
     sub_county = models.CharField(max_length=100)
