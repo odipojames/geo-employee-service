@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import Employee, Documents, Equipments
-from django.core.exceptions import ValidationError
 from utils.validators import validate_international_phone_number
 
 class DocumentsSerializer(serializers.ModelSerializer):
@@ -15,7 +14,6 @@ class EquipmentsSerializer(serializers.ModelSerializer):
         fields = '__all__'  
         extra_kwargs = {"id": {"read_only": True}}
               
-
 class EmployeeSerializer(serializers.ModelSerializer):
     documents = DocumentsSerializer()
     equipments = EquipmentsSerializer(many=True, read_only=True)
@@ -24,14 +22,13 @@ class EmployeeSerializer(serializers.ModelSerializer):
         model = Employee
         fields = [
             'id', 'first_name', 'second_name', 'last_name', 'email',
-            'phone', 'id_number', 'department','team', 'age', 'county',
+            'phone', 'id_number', 'department', 'team', 'age', 'county',
             'sub_county', 'salary', 'created_at', 'updated_at',
             'documents', 'equipments'
         ]
 
         extra_kwargs = {"id": {"read_only": True}}
         
-
     def validate_phone(self, value):
         if not validate_international_phone_number(value):
             raise serializers.ValidationError("Please enter a valid international phone number.")
@@ -45,7 +42,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         documents_data = validated_data.pop('documents', {})
-        equipments_data = validated_data.pop('equipments', [])
 
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.second_name = validated_data.get('second_name', instance.second_name)
@@ -68,10 +64,5 @@ class EmployeeSerializer(serializers.ModelSerializer):
         documents_instance.save()
 
         instance.save()
-
-        instance.equipments.clear()
-        for equipment_data in equipments_data:
-            equipment, _ = Equipments.objects.get_or_create(**equipment_data)
-            instance.equipments.add(equipment)
 
         return instance

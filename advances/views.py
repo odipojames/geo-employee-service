@@ -15,7 +15,7 @@ class AdvanceListCreateView(generics.ListCreateAPIView):
         employee = Employee.objects.get(email=self.request.user.email)
         
         if str(self.request.user.role) in ["management", "admin", "tech_lead"]:
-            return Advance.objects.filter(Q(employee=employee) | Q(is_approved=False)).order_by('-created_at')
+            return Advance.objects.filter(Q(employee=employee) | Q(is_approved=False) and Q(is_cancelled=False)).order_by('-created_at')
         
         return Advance.objects.filter(employee=employee)
 
@@ -49,9 +49,18 @@ class AdvanceDetailView(generics.RetrieveUpdateDestroyAPIView):
 
         # Other roles: cannot update 'is_approved' or 'is_rejected' for their own advances
         if user.role in ['management', 'admin', 'tech_lead']:
+            
+            if instance.is_cancelled == True:
+                return Response({"detail": "You cannot approve cancelled request!"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if instance.is_rejected == True:
+                return Response({"detail": "You cannot approve rejected request!"}, status=status.HTTP_400_BAD_REQUEST)        
+            
             if instance.employee.email == user.email:
                 if 'is_approved' in request.data or 'is_rejected' in request.data:
                     return Response({"detail": "You cannot approve or reject  your own advance request!"}, status=status.HTTP_400_BAD_REQUEST)
+                
+           
         
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -76,7 +85,7 @@ class ApproveUnapprovedAdvancesView(views.APIView):
             return Response({"detail": "You do not have permission to approve advances."}, status=status.HTTP_403_FORBIDDEN)
         
         # Filter and update advances
-        advances = Advance.objects.filter(is_approved=False, is_rejected=False).exclude(employee=request.user)
+        advances = Advance.objects.filter(is_approved=False, is_rejected=False, is_cancelled=False).exclude(employee=request.user)
         updated_count = advances.update(is_approved=True)
         
         return Response({"detail": f"{updated_count} advances successfully approved."}, status=status.HTTP_200_OK)
