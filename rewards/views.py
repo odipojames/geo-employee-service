@@ -3,8 +3,10 @@ from rest_framework import generics, status, views
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Reward
-from .serializers import RewardSerializer
+from .serializers import RewardSerializer, RewardTeamSerializer
 from employees.models import Employee
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 class RewardListCreateView(generics.ListCreateAPIView):
     queryset = Reward.objects.all().order_by('-created_at')
@@ -52,18 +54,18 @@ class RewardDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class RewardAllTeamMembersView(views.APIView):
     permission_classes = [IsAuthenticated]
-
+    @swagger_auto_schema(request_body=RewardTeamSerializer)
     def post(self, request, *args, **kwargs):
         user = request.user
         if user.role != 'management':
             return Response({"message": "You do not have permission to reward all team members."}, status=status.HTTP_403_FORBIDDEN)
 
-        team = request.data.get('team')
-        reward_amount = request.data.get('reward')
-        description = request.data.get('description')
+        serializer = RewardTeamSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        if not team or not reward_amount or not description:
-            return Response({"message": "Team, reward amount, and description are required."}, status=status.HTTP_400_BAD_REQUEST)
+        team = serializer.validated_data['team']
+        reward_amount = serializer.validated_data['reward']
+        description = serializer.validated_data['description']
 
         employees = Employee.objects.filter(team=team)
         if not employees.exists():

@@ -19,3 +19,10 @@ class RewardSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['employee'] = EmployeeRSerializer(instance.employee).data
         return representation
+    
+    
+    
+class RewardTeamSerializer(serializers.Serializer):
+    team = serializers.CharField(max_length=100)
+    reward = serializers.DecimalField(max_digits=10, decimal_places=2)
+    description = serializers.CharField(max_length=300)    

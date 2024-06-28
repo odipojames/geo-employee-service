@@ -10,7 +10,7 @@ from django.views.generic.base import RedirectView
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="GEO auth-service API",
+        title="GEO employee-service API",
         default_version="v1",
         description="Employee-service for GEOPAY",
         terms_of_service="https://www.geo.com/policies/terms/",

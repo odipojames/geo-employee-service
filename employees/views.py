@@ -12,7 +12,7 @@ class EmployeeListCreateView(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated,IsEmployeeOrAdmin,)
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = EmployeeFilter
-    ordering_fields = ['first_name', 'second_name', 'department']
+    #ordering_fields = ['first_name', 'second_name', 'department','team']
     
     def get_queryset(self):
         if str(self.request.user.role)=="staff":
