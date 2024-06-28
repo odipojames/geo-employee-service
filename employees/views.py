@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions,status,filters
 from .models import Employee, Equipments
 from .serializers import EmployeeSerializer, EquipmentsSerializer
-from utils.permissions import IsEmployeeOrAdmin
+from utils.permissions import IsAdminOrReadOnly
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import EmployeeFilter
@@ -9,7 +9,7 @@ from .filters import EmployeeFilter
 class EmployeeListCreateView(generics.ListCreateAPIView):
     #queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
-    permission_classes = (permissions.IsAuthenticated,IsEmployeeOrAdmin,)
+    permission_classes = (permissions.IsAuthenticated,IsAdminOrReadOnly,)
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = EmployeeFilter
     #ordering_fields = ['first_name', 'second_name', 'department','team']
@@ -24,7 +24,7 @@ class EmployeeListCreateView(generics.ListCreateAPIView):
 class EmployeeRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
-    permission_classes = (permissions.IsAuthenticated,IsEmployeeOrAdmin,)
+    permission_classes = (permissions.IsAuthenticated,IsAdminOrReadOnly,)
     
     def perform_destroy(self, instance):
         instance.delete()

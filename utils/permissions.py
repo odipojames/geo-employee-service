@@ -1,19 +1,29 @@
 from rest_framework import permissions
 from rest_framework.permissions import SAFE_METHODS
 
-class IsEmployeeOrAdmin(permissions.BasePermission):
+class IsAdminOrReadOnly(permissions.BasePermission):
     """
-    permissions for creating and editing  employees
+    Custom permission to allow only admin to perform all CRUD operations.
+    Other roles (management, staff, tech_lead) can only list and view.
     """
-    message = "you must have rights  to perform this"
+    message = "You must have rights to perform this action."
 
     def has_permission(self, request, view):
-        if str(request.user.role) == "management" or str(request.user.role) == "staff" and request.method in SAFE_METHODS:
+        # Allow only GET, HEAD, and OPTIONS requests for non-admin users
+        if request.method in SAFE_METHODS:
             return True
-        return (
-            str(request.user.role) == "superuser"
-            or str(request.user.role) == "admin"
-        )
+        
+        # Allow all CRUD operations for admin users
+        return request.user.role in ["superuser", "admin"]
+
+    def has_object_permission(self, request, view, obj):
+        # Allow only GET, HEAD, and OPTIONS requests for non-admin users
+        if request.method in SAFE_METHODS:
+            return True
+        
+        # Allow all CRUD operations for admin users
+        return request.user.role in ["superuser", "admin"]
+
         
         
 
