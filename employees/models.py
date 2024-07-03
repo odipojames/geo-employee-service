@@ -19,16 +19,18 @@ DEPARTMENT_CHOICES = (
 class Documents(AbstractBaseModel, models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     national_id = models.FileField(
-        upload_to="documents/", validators=[validate_file_extension]
+        upload_to="documents/national_id/", validators=[validate_file_extension]
     )
     kra_certificate = models.FileField(
-        upload_to="documents/", validators=[validate_file_extension]
+        upload_to="documents/kra_certificate/", validators=[validate_file_extension]
     )
-    passport_photo = models.ImageField(upload_to="documents/")
+    passport_photo = models.ImageField(upload_to="documents/passport_photo/")
     others = models.FileField(
-        upload_to="documents/", validators=[validate_file_extension], blank=True
+        upload_to="documents/others/", validators=[validate_file_extension], blank=True
     )
-
+    
+    
+    
 class Equipments(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
