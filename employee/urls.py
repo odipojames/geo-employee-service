@@ -22,11 +22,11 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("employees.urls")),
-    path("", include("advances.urls")),
-    path("", include("rewards.urls")),
+    path("api/v1/", include("employees.urls")),
+    path("api/v1/", include("advances.urls")),
+    path("api/v1/", include("rewards.urls")),
     path(
-        "docs/",
+        "api/v1/docs/",
         schema_view.with_ui("swagger", cache_timeout=0),
         name="api-documentation",
     ),
@@ -37,7 +37,7 @@ urlpatterns = [
     ),
     path(
         "",
-        RedirectView.as_view(url="docs/", permanent=False),
+        RedirectView.as_view(url="api/v1/docs/", permanent=False),
         name="api_documentation",
     ),
 ]

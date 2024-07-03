@@ -6,19 +6,22 @@ from .models import Reward
 from .serializers import RewardSerializer, RewardTeamSerializer
 from employees.models import Employee
 from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import RewardFilter
 
 class RewardListCreateView(generics.ListCreateAPIView):
     queryset = Reward.objects.all().order_by('-created_at')
     serializer_class = RewardSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = RewardFilter
 
     def get_queryset(self):
         user = self.request.user
         if user.role in ["staff", "tech_lead"]:
             return Reward.objects.filter(employee__email=user.email).order_by('-created_at')
         return Reward.objects.all().order_by('-created_at')
-
+    
     def create(self, request, *args, **kwargs):
         user = self.request.user
         if user.role != 'management':

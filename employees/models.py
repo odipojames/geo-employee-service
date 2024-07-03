@@ -3,6 +3,7 @@ from utils.validators import validate_file_extension
 from utils.models import AbstractBaseModel
 from utils.validators import validate_international_phone_number
 from django.core.exceptions import ValidationError
+import uuid
 
 
 DEPARTMENT_CHOICES = (
@@ -16,18 +17,20 @@ DEPARTMENT_CHOICES = (
 
 
 class Documents(AbstractBaseModel, models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     national_id = models.FileField(
-        upload_to="media/documents/", validators=[validate_file_extension]
+        upload_to="documents/", validators=[validate_file_extension]
     )
     kra_certificate = models.FileField(
-        upload_to="media/documents/", validators=[validate_file_extension]
+        upload_to="documents/", validators=[validate_file_extension]
     )
     passport_photo = models.ImageField(upload_to="documents/")
     others = models.FileField(
-        upload_to="media/documents/", validators=[validate_file_extension], blank=True
+        upload_to="documents/", validators=[validate_file_extension], blank=True
     )
 
 class Equipments(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     employee = models.ForeignKey('Employee', related_name='equipments', on_delete=models.CASCADE)
@@ -37,6 +40,7 @@ class Equipments(models.Model):
 
 
 class Employee(AbstractBaseModel, models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     first_name = models.CharField(max_length=100)
     second_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100, blank=True)

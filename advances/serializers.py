@@ -30,3 +30,5 @@ class AdvanceSerializer(serializers.ModelSerializer):
             if amount is not None and amount > employee.salary:
                 raise serializers.ValidationError({"amount": "Advance amount cannot be greater than the salary"})
         return data
+    
+    

@@ -15,6 +15,7 @@ from datetime import timedelta
 import os
 import dj_database_url
 from dotenv import load_dotenv
+import cloudinary_storage
 
 
 # Load environment variables from .env file
@@ -54,6 +55,9 @@ INSTALLED_APPS = [
     'rewards',
     'rest_framework_swagger',
     'drf_yasg',
+    'cloudinary',
+    'cloudinary_storage',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -176,11 +180,22 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTTokenUserAuthentication',
-    )
+    ),
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
-    'SIGNING_KEY': "363336636",
+    'SIGNING_KEY': os.environ.get('SIGNING_KEY'),
 }
+
+
+#cloudinary uploads
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME':os.environ.get('CLOUD_NAME'),
+    'API_KEY': os.environ.get('API_KEY'),
+    'API_SECRET':os.environ.get('API_SECRET')
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
