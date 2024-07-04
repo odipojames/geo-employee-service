@@ -4,6 +4,7 @@ from utils.models import AbstractBaseModel
 from utils.validators import validate_international_phone_number
 from django.core.exceptions import ValidationError
 import uuid
+from utils.storages import OverwriteStorage
 
 
 DEPARTMENT_CHOICES = (
@@ -19,14 +20,14 @@ DEPARTMENT_CHOICES = (
 class Documents(AbstractBaseModel, models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     national_id = models.FileField(
-        upload_to="documents/national_id/", validators=[validate_file_extension]
+        upload_to="documents/national_id/",storage=OverwriteStorage(), validators=[validate_file_extension]
     )
     kra_certificate = models.FileField(
-        upload_to="documents/kra_certificate/", validators=[validate_file_extension]
+        upload_to="documents/kra_certificate/",storage=OverwriteStorage(), validators=[validate_file_extension]
     )
-    passport_photo = models.ImageField(upload_to="documents/passport_photo/")
+    passport_photo = models.ImageField(upload_to="documents/passport_photo/",storage=OverwriteStorage())
     others = models.FileField(
-        upload_to="documents/others/", validators=[validate_file_extension], blank=True
+        upload_to="documents/others/", validators=[validate_file_extension],storage=OverwriteStorage(), blank=True
     )
     
     

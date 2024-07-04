@@ -15,8 +15,11 @@ from datetime import timedelta
 import os
 import dj_database_url
 from dotenv import load_dotenv
-import cloudinary_storage
 
+import cloudinary_storage
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # Load environment variables from .env file
 load_dotenv()
