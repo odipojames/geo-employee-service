@@ -4,7 +4,12 @@ from rest_framework.response import Response
 from .models import Advance, Employee
 from .serializers import AdvanceSerializer
 from django.db.models import Q
+from rest_framework.exceptions import APIException
 
+class EmployeeNotFound(APIException):
+    status_code = 500
+    default_detail = "Employee does not exist, please create or update the employee object for this user account."
+    default_code = 'employee_not_found'
 
 class AdvanceListCreateView(generics.ListCreateAPIView):
     queryset = Advance.objects.all().order_by('-created_at')
@@ -12,16 +17,24 @@ class AdvanceListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        employee = Employee.objects.get(email=self.request.user.email)
-        
+        try:
+            employee = Employee.objects.get(email=self.request.user.email)
+        except Employee.DoesNotExist:
+            raise EmployeeNotFound()
+
         if str(self.request.user.role) in ["management", "admin", "tech_lead"]:
-            return Advance.objects.filter(Q(employee=employee) | Q(is_approved=False) and Q(is_cancelled=False)).order_by('-created_at')
+            return Advance.objects.filter(Q(employee=employee) | Q(is_approved=False) & Q(is_cancelled=False)).order_by('-created_at')
         
         return Advance.objects.filter(employee=employee)
 
     def perform_create(self, serializer):
-        employee = Employee.objects.get(email=self.request.user.email)
+        try:
+            employee = Employee.objects.get(email=self.request.user.email)
+        except Employee.DoesNotExist:
+            raise EmployeeNotFound()
+
         serializer.save(employee=employee)
+
 
 
 class AdvanceDetailView(generics.RetrieveUpdateDestroyAPIView):
