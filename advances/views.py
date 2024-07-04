@@ -7,7 +7,7 @@ from django.db.models import Q
 from rest_framework.exceptions import APIException
 
 class EmployeeNotFound(APIException):
-    status_code = 500
+    status_code = 400
     default_detail = "Employee does not exist, please create or update the employee object for this user account."
     default_code = 'employee_not_found'
 
