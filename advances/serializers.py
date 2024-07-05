@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Advance
 from employees.models import Employee
+from django.utils import timezone
+
 
 class EmployeeMSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,6 +31,11 @@ class AdvanceSerializer(serializers.ModelSerializer):
             amount = data.get('amount')
             if amount is not None and amount > employee.salary:
                 raise serializers.ValidationError({"amount": "Advance amount cannot be greater than the salary"})
+            
+            date = data.get('date')
+            if date and date < timezone.now().date():
+                raise serializers.ValidationError({"date": "The date cannot be in the past."})
+        
         return data
     
     
