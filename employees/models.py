@@ -35,7 +35,7 @@ class Documents(AbstractBaseModel, models.Model):
 class Equipments(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
+    description = models.TextField(max_length=250)
     employee = models.ForeignKey('Employee', related_name='equipments', on_delete=models.CASCADE)
 
     def __str__(self):
