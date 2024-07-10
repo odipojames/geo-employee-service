@@ -26,8 +26,7 @@ class AdvanceSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request:
             employee = Employee.objects.get(email=request.user.email)
-            
-            # Use data.get() to safely retrieve 'amount' from data
+        
             amount = data.get('amount')
             if amount is not None and amount > employee.salary:
                 raise serializers.ValidationError({"amount": "Advance amount cannot be greater than the salary"})

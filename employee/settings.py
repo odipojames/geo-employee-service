@@ -204,3 +204,9 @@ CLOUDINARY_STORAGE = {
 }
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Add the URL of the notification service
+if MODE=="prod":
+    NOTIFICATION_SERVICE_URL = 'https://geo-notificaion-service.vercel.app/api/v1/notifications/'
+else:
+    NOTIFICATION_SERVICE_URL = 'http://127.0.0.1:8000/api/v1/notifications/'     

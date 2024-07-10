@@ -1,4 +1,3 @@
-# views.py
 from rest_framework import generics, status, views
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -8,6 +7,8 @@ from employees.models import Employee
 from drf_yasg.utils import swagger_auto_schema
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import RewardFilter
+from utils.notifications import send_notification
+import uuid
 
 class RewardListCreateView(generics.ListCreateAPIView):
     queryset = Reward.objects.all().order_by('-created_at')
@@ -31,6 +32,12 @@ class RewardListCreateView(generics.ListCreateAPIView):
         if not employee_id:
             return Response({"employee": "This field is required."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Validate employee_id
+        try:
+            uuid.UUID(employee_id)
+        except ValueError:
+            return Response({"employee": "Invalid UUID format."}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             employee = Employee.objects.get(id=employee_id)
         except Employee.DoesNotExist:
@@ -39,9 +46,34 @@ class RewardListCreateView(generics.ListCreateAPIView):
         # Create the reward
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(employee=employee)
+        instance = serializer.save(employee=employee)
         headers = self.get_success_headers(serializer.data)
+
+        # Send notification
+        self.send_reward_notification(instance, request)
+
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    def send_reward_notification(self, reward_instance, request):
+        payload = {
+            "id": str(reward_instance.id),
+            "amount": str(reward_instance.reward),
+            "description": reward_instance.description,
+            "is_paid": reward_instance.is_paid,
+            "created_at": reward_instance.created_at.isoformat(),
+            "employee": {
+                "id": str(reward_instance.employee.id),
+                "email": reward_instance.employee.email,
+                "first_name": reward_instance.employee.first_name,
+                "second_name": reward_instance.employee.second_name
+                 },
+        }
+        message = f"You've been awarded {reward_instance.description}"
+        token = request.headers.get('Authorization').split(' ')[1]
+        type = 'reward'
+        # Call the notification function
+        send_notification(payload, type, message, token)
+        
 
 class RewardDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Reward.objects.all()
@@ -57,6 +89,7 @@ class RewardDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class RewardAllTeamMembersView(views.APIView):
     permission_classes = [IsAuthenticated]
+
     @swagger_auto_schema(request_body=RewardTeamSerializer)
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -76,8 +109,33 @@ class RewardAllTeamMembersView(views.APIView):
 
         rewards = []
         for employee in employees:
-            rewards.append(Reward(reward=reward_amount, description=description, is_paid=False, employee=employee))
+            reward = Reward(reward=reward_amount, description=description, is_paid=False, employee=employee)
+            rewards.append(reward)
 
-        Reward.objects.bulk_create(rewards)
+        created_rewards = Reward.objects.bulk_create(rewards)
+
+        # Send notifications for each reward
+        for reward in created_rewards:
+            self.send_reward_notification(reward, request)
 
         return Response({"message": f"Rewards successfully created for all team members in team {team}."}, status=status.HTTP_201_CREATED)
+
+    def send_reward_notification(self, reward_instance, request):
+        payload = {
+            "id": str(reward_instance.id),
+            "amount": str(reward_instance.reward),
+            "description": reward_instance.description,
+            "is_paid": reward_instance.is_paid,
+            "created_at": reward_instance.created_at.isoformat(),
+            "employee": {
+                "id": str(reward_instance.employee.id),
+                "email": reward_instance.employee.email,
+                "first_name": reward_instance.employee.first_name,
+                "second_name": reward_instance.employee.second_name
+            },
+        }
+        message = f"You've been awarded {reward_instance.description}"
+        token = request.headers.get('Authorization').split(' ')[1]
+        type = 'reward'
+        # Call the notification function
+        send_notification(payload, type, message, token)
