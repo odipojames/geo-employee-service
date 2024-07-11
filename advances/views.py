@@ -63,7 +63,7 @@ class AdvanceListCreateView(generics.ListCreateAPIView):
         
         # Prepare the notification payload and message
         payload = response  
-        type = 'advance_request'
+        type = 'advance'
 
         # Convert the date string back to a datetime object 
         date_str = response['date']
